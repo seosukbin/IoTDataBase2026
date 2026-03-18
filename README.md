@@ -373,3 +373,66 @@ DELETE FROM 테이블명
  CREATE USER 사용자명 IDENTIFIED BY 비번;
  '''
  CREATE USER 사용자명 IDENTIFIED BY 비번
+
+ ## 4일차
+
+### 
+ https://github.com/datacharmer/test_db
+
+
+ ### DML 추가
+  - INSERT INTO 대량 삽입 - MYSQL 방법
+
+  ,,,sql
+  INSERT INTO 테이블명 VALUES(컬럼1값,컬럼2값,....컬럼N값),
+  (컬럼1값,컬럼2값,....컬럼N값),
+  (컬럼1값,컬럼2값,....컬럼N값),
+  (컬럼1값,컬럼2값,....컬럼N값),
+  (컬럼1값,컬럼2값,....컬럼N값),
+  ,,,,,
+  (컬럼1값,컬럼2값,....컬럼N값);
+
+  ### DDL 계속
+
+  #### 제약조건
+   - 데이터베이스에 정확한 데이터가 들어갈수 있도록, 테이블에 각 컬럼별 입력 가능한 데이터를 지정하는것
+   - 무결성을 벗어나는 데이터는 못들어 가도록 제약을 주는것을 제약 조건이라고 한다. 
+
+   - 종류: 기본키(primary key),단일(unique), 널 허용여부(not null), 체크,기본값(default)외래키(foreign key)
+  
+
+  ### CREATE 계속
+   - CREATE 구문 
+    - FOREIGN KEY (bookid) REFERENCES NewBook(bookid) ON DELETE CASCADE
+     references는 참조하는 부모 테이블과 pk 컬럼
+    - on delete cascade: 부모에 있는 primary key가 없어지면 자식 테이블에 있는 값도        지워진다라는  의미
+
+    - on delete set null: 부모 테이블에 pk값이 삭제 되면 자식 테이블에 있는 fk값은 null로 변경한다.
+
+    - on update cascade| set null: 수정 할때도 삭제시와 유사한 처리를 할수 있다. 수정도 가능하지만 pk 수정이 거의 없기 때문에 많이 사용 되지 않는다.
+
+    -auto increment: 테이블에 데이터를 삽입할때 숫자 타입 PK의 값을 자동으로 증가 시켜주는 기능
+     - PK 컬럼은 insert 문에서 생략
+
+#### ALTER
+- ALTER
+ - 객체 수정,테이블 외에서는 많이 사용 안된
+
+ '''sql
+ ALTER TABLE 테이블명
+    [ADD 속성 데이터타입]
+    [DROP COLUM 컬럼명]
+    [MODIFY 속성명 데이터 타입]
+    [MODIFY 속성명[NULL|NOT NULL]]
+    [ADD PRIMARY KEY(컬럼명)]
+    [[ADD|DROP] 제약 조건명]
+'''
+
+#### DROP
+ - 객체 삭제
+ - 테이블에서는 관계를 맺고 있는 자식 테이블 먼저 삭제 후 부모 테이블 삭제 가능
+ '''sql
+ DROP 객체 객체명
+
+ ### 내장 함수
+ 
