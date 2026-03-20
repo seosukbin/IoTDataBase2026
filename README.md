@@ -523,15 +523,131 @@ DELETE FROM 테이블명
      ### 6일차
 
      ### 트랜잭션, 동시성 제어
+    
+    - TCL(Transaction Control Language): language에 포함된 'transaction', 'commit', 'rollback','savepoint' 학습
+    
+    #### 트랜잭션
+    
+    - 트랜잭션
+        - 일을 처리하는 논리적인 단위 그룹
+        - 여러 쿼리들이 실행 되어 완성되는 하나의 논리 그룹 처리 단위
+        - 여러 SQL을 한번에 묶어 전부 성공하거나/전부 실패하게 만드는것
+    
+    - 예시
+        - 계좌이체 예시
+            - A가 B에게 100만원 보낸다
+                1. A의 계좌에서 100만원 차감
+                2. B의 계좌에 100만원 추가
+                3. 1번만 실행되고 2번 실패하면 돈이 사라짐
+                4. 2번만 실행되고 1번 실패하면 돈이 복사됨
+                   -----> 이런 일을 방지해주는것이 트랜잭션
 
+        - 트랜잭션 4가지 특징(ACID)
+            Atomicity(원자성): 전부 성공 하거나 또는 전부 실패
+            Consistency(일관성): 거래 전후로 데이터 규칙이 유지됨, 전체 합은 변경 없음
+            Isolation(독립성): 여러 사람이 동시에 처리해도 서로 영향이 없음
+            Durability(지속성): 성공된 처리는 절대 사라지지 않음
+
+      
+
+    #### DBeaver 툴 트랜잭션 설정
+    - DBeaver는 기본적으로 사용 못하게 되어 있음 - Auto Commit 설정 중 
+    ![alt text](image-21.png)
+
+    -이걸 Manual Commit으로 변경후 테스트  ----> 중요
+
+    ![alt text](image-22.png)
+    auto commit 해제할때 이렇게 하면 좋지만 transaction 할때만 이렇게 해야 된다.
+    #### 트랜잭션 쿼리
+    '''sql  
+    START TRANSACTION; -- 트랜잭션 로직에 진입
+
+    -- 여러가지 쿼리 실행
+
+    COMMIT -- 성공 했으면 모두 저장
+    ROLLBACK -- 하나라도 실패 했으면 원상복구
+
+    - 세이브포인트
+
+    '''sql
+    -- 트랜잭션 중
+    SAVEPOINT sp명;
+
+     #### 동시성 제어
+    - 개요
+        - 여러 트랜잭션이나 프로세스가 동시에 실행될때 데이터의 일관성을 유지하면서 처리하는것
+        - Lock,Isolation Level,MVCC 등 동시정 제어 기법 사용
+
+    - 일반적인 락 실습
+        - 세션 1번이 특정 테이블의 데이터를 update나 delete시 트랜잭션을 종료 하지 않으면 
+        세션 2번이 같은 테이블의 데이터를 update나 delete 할수 없다.
+
+        ![alt text](image-23.png) 
+        ![alt text](image-24.png)
+        세션1에서 commit하지 않으면 lock이 걸리기 때문에 작동 하지 않는다.
+
+        - 서로 다른 행 데이터를 편집 할때는 락이 걸리지 않는다. 
+
+        - 테이블락
+         - 테이블 전체를 락, 행 락과 달리 commit,rollback을 처리 할수 없음
+         - unlock으로 테이블 락을 해제 해야 한다. 
+         - 이때는 테이블락 5분 가량 지속 
+
+         -트랜잭션 확인 쿼리(관리자용)
+
+         SELECT * FROM information_schema.INNODB_TRX it;
+
+        -  격리 수준 - 동시 여러 트랜잭션이 실행 될때 서로의 데이터에 얼마나 영향을 줄지 제어하는 기준
+        -  최하 - Read Uncommitted. 커밋 되지 않은 데이터 읽을수 있음
+        -  중간- Read Committed. 커밋된데이터만 읽음
+        -  기본 - Repeatable Read.  MySQL기본값, 트랜잭션 안에서는 항상 같은 결과
+        -  최고 - Serialiable, 순차적 실행, 동시성 거의 없음. 안전하지만 성능 최악 
+    - 동시성 제어 문제 
+        - Dirty Read: 다른 트랜잭션이 아직 커밋하지 않은 데이터를 읽는 현상
+        - Non-repeatable Read: 같은 트랜잭션 안에서 같은 데이터를 두번 읽었을때 결과가 다른 현상(세션에서 값이 바껴서 생기는 문제)
+        - Phantom Read - 같은 조건으로 두번 조회시 행 개수가 달라지는 현상
+     
+     - 데드락
+        -MYSQL은 데드락이 오래 걸리지 않도록 50초후 데드락을 풀어버림
+        - 트랜잭션이 종료된 것은 아니므로 다른 세션에서 commit, rollback을 수행 해야함
+        - 트랜잭션을 짧게 유지 할것
+        - 테이블 락은 사용 최소화
+     ### 보안 및 관리
 
      ### 사용자
-
+    - 사용자 생성 및 삭제
+        - 데이터베이스를 사용할 계정을 생성 쿼리, DDL
+        - @이후 'localhost'내부접속용,'%'외부접속용
+        ''sql
+        - 사용자 생성
+        CREATE USER '사용자명'@'localhost|%'IDENTIFIED BY '비밀번호'
+        - 사용자 삭제
+        DROP USER '사용자명'
 
      ### 권한
+       - GRANT ALL PRIVILEDGES ON 데이터베이스.*TO'사용자명'@'localhost|%';
 
+       - GRANT select,insert,update  ON 데이터베이스.객체명*TO'사용자명'@'localhost|%';
+       
+       - revoke all priviledges on 데이터베이스.*from  '사용자명'@'localhost|%'; 
      ### MY SQL프로그래밍
 
+
+    #### 데이터베이스 프로그래밍
+        - 일반 프로그래밍 언어와 차이점 존재
+            - DB전용프로그램 개발
+
+        - 개념
+            - 일반적인 프로그래밍과 유사
+            - 변수,연산자,조건문,반복문 모두 존재
+        - MYSQL 경우 함수 안정성 체크 옵션으로 생성 불가 발생
+        - 관리자 앱에서 
+        -- 함수의 안정성 체크 안함
+        SET GLOBAL log_binary_trust_function_creators = 1;
+     #### 사용자 정의 함수
+    - 함수
+        - 내장 함수에 없는 기능의 함수를 추가로 개발 하는것 
+        - 함수 파라미터,리턴값이 존재
      ### 프로시저
 
      #### 함수
