@@ -686,44 +686,7 @@ DELETE FROM 테이블명
         ![alt text](image-26.png)
 
         - 시스템 로그 기능에 많이 사용됨
-     ### C/C++ MYSQL 연동
-    - 개발 방법
-         - MYSQL서버
-         - MYSQL CONNECTOR/C++ 라이브러리 설치
-         https://dev.mysql.com/downloads/connector/cpp/
-         - 저장 경로
-         C:\MySQL에 저장됨
-         - Visual Studio 프로젝트 생성
-         - C++ 코드 작성
-
-         #### Visual Studio 프로젝트 속성
-
-         - 프로젝트 속성 (부모 기본값 상속 페크 반드시)
-            -   C/C++ > 일반 > 추가 포함 디렉토리
-            - C:\program files\MYSQL\MYSQL Connector C++ 9.6\include
-         - 링커 > 일반 > 추가 라이브러리 디렉토리
-            - C:\program files\MYSQL\MYSQL Connector C++ 9.6\include\vs14
-        - 추가 > 입력 > 추가 종속성 
-            -mysqlcppconnx-static.lib
-        -  링커 > 입력 > 추가 종속성
-            -mysqlcppconn.lib    
-        #### 텔넷 클라이언트 설정
-        - 시작 >appwiz.cpl실행
-            - windows기능 켜기/크기 클릭
-            - telnet client 체크 활성화
-            - powershell이나 콘솔
-    
-     ### 데이터베이스 연동
-
-     ##### ERD 작성
-      - 정규화, 반정규화, 개념/논리/물리다이어그램
-
-    ### 언어
-    - C,C++,SQL,C# ,JAVASCRIPT,HTML,CSS,RASPI,ARDUINO,IOT,통신...
-
-    ![alt text](image-27.png)
-        
-    ![alt text](image-28.png)    
+     
 
 
 #### 데이터 베이스 모델링
@@ -929,4 +892,121 @@ DELETE FROM 테이블명
 
     #### 인덱스 연습
     - 실행 계획 확인
-    
+
+
+
+## 9일차
+
+### C/C++ MySQL 연동
+- 개발 방법
+    - MySQL 8.0이상 8.0.45
+    - MySQL Server 자체 라이브러리 사용
+    - Visual Studio 프로젝트 생성
+    - C++ 코드 작성
+
+#### MySql Server 8.0 설치
+https://dev.mysql.com/downloads/mysql/8.0.html
+
+![alt text](image-36.png)
+
+- MySQL C API 사용
+
+
+#### 텔넷 클라이언트 설정
+#### 텔넷 클라이언트 설정
+
+- 시작 > appwiz.cpl 실행
+  - Windows 기능 켜기/끄기 클릭
+  - Telnet Client 체크 활성화
+  - powershell이나 콘솔
+
+![alt text](image-25.png)
+
+#### Visual C++ 프로젝트 설정
+- 생성후 Visual C++ 프로젝트 속성
+    - VC++디렉토리 > 일반 > 포함 디렉토리
+    C:\Program Files\MySQL\MySQL Server 8.0\include
+    - VC++디렉토리 > 일반 > 라이브러리 디렉토리 => 외부 라이브러리를 사용 하기 위한 방법
+    C:\Program Files\MySQL\MySQL Server 8.0\lib
+    - 외부 코드를 사용 하기 위해서는 헤더, 라이브러리, DLL을 모두 설정 해야 한다.
+    ![alt text](image-38.png)
+    -링커 > 입력 > 추가 종속성
+     libmysql.lib입력
+     ![alt text](image-37.png)
+
+
+- MySQL 추가 라이브러리 디렉토리
+    - MySQL 8.0 폴더에 있는 libmysql.dll파일을 프로젝트로  복사 해야 한다. 
+    ![alt text](image-39.png)
+
+- 시스템 설정 sysdm.cpl
+    - 고급탭 > 환경 변수 > 시스템 변수 path
+    ![alt text](image-40.png)
+     C:\Program Files\MySQL\MySQL Server 8.0\bin 추가
+#### C++ MySQL 연동
+    - 기본 연결 확인 구현
+    #include <iostream>
+#include <mysql.h>
+using namespace std;
+int main()
+{
+    // 필요 변수 선언
+    MYSQL Conn; // DB연결 변수
+    MYSQL* ConnPtr = NULL;
+    MYSQL_RES* Result = NULL;
+    MYSQL_ROW Row; // 한행을 담는 변수
+
+    int Stat; // 상태값
+    // 클라이언트 정보 확인
+
+   cout << mysql_get_client_info() << "\n";
+    //MYSQL 초기화
+   mysql_init(&Conn); // 연결 객체를 초기화
+   ConnPtr = mysql_real_connect(&Conn,"127.0.0.1","madang","madang","madangdb",3306,NULL,0); 연동 시작
+
+    - 쿼리문 마지막에 ;는 무조건 뺴야 한다. (오류 발생)
+
+    - MySQL 연동 순서
+        1. 콘솔 인코딩 UTF-8 설정
+        2. 연결, 행데이터,결과 구조체 변수, 포인터 변수 선언
+        3. MYSQL 초기화
+        4. 접속 정보로 접속
+        5. 서버 문자셋 UTF-8 설정
+        6. 쿼리 실행
+        7. 결과를 메모리에 저장
+        8. 한 행씩 FETCH, 출력 
+        9. 결과 메모리 해체
+        10. 접속 종료
+
+#### MySQL CRD 앱 구현
+- C학습 AddressBook 프로젝트와 비교 
+    - 텍스트 파일,File 10 vs MySQL DB
+    - contact 구조체 vs MySQL 자체 구조체 사용
+    - 파일 관련 작업 vs MySQL 함수로 처리
+    ![alt text](image-41.png)
+
+- MySQL C API 함수 목록
+     - mysql_init() - MySQL DB 연결 초기화
+     - mysql_real_connect() - 연결 시도
+     - mysql_error() - 에러 메세지 확인
+     - mysql_query() - 쿼리 실행
+     - mysql_store_result() - 쿼리 실행 결과 메모리 저장
+     - mysql_fetch_row() - 한 행씩 읽어오기
+     - mysql_free_result() - 쿼리 실행 결과 메모리 해제
+     - mysql_affected_row() - 쿼리 실행 처리 함수 리턴
+     - mysql_close() - DB 연결 종료
+
+- MySQL Connect/C++
+    - MySQL C API를 C++로 클래스화 한 라이브러리
+    - 객체화, 예외처리 기능 고급화
+    - 운영체제 환경 영향 지대
+    - 설정 난이도 높음
+    - Visual Studio 설정 까다로움
+    - 유지보수 좋음
+
+- MySQL C API
+   - C언어 기반
+   - 함수 중심
+   - 사용난이도 낮음
+   - 설정난이도 낮음
+   - 예외처리를 직접 처리   
